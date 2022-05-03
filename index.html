@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/qgis2web.css"><link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <link rel="stylesheet" href="css/leaflet-measure.css">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.8.0/dist/leaflet.css" integrity="sha512-hoalWLoI8r4UszCkZ5kL8vayOGVae1oxXe/2A4AO6J9+580uKHDO3JdHb7NzwwzK5xr/Fs0W40kiNHxM9vyTtQ==" crossorigin="" />
+        
+        <style>
+          html, body, #map {
+                width: 100%;
+                height: 100%;
+                padding: 0;
+                margin: 0;
+            }
+            .side-icon {
+                position: absolute;
+                top: 125px;
+                left: 12px;
+                z-index: 1000;
+                text-align: center;
+                display: flex;
+                flex-direction: column;
+                /* gap: 10px; */
+            }
+            .side-icon__link {
+                display: inline-block;
+                cursor: pointer;
+                position: relative;
+                color: black;
+                width: 30px;
+                height: 30px;
+                border-radius: 6px;
+                overflow: hidden;
+                transition: all 1s linear;
+                margin-bottom: 10px;
+            }
+            .leaflet-control-attribution {
+                display: none;
+            }
+            .coords {
+                position: absolute;
+                bottom: 10px;
+                left: 600px;
+                z-index: 1000;
+                background: url('https://img.freepik.com/free-vector/nature-forest-landscape-daytime-scene-with-long-river-flowing-through-meadow_1308-61330.jpg?t=st=1651514969~exp=1651515569~hmac=61d7da6d3f1500e2009099faa65b8fa45d6ea975892da2b16c4a5626995be607&w=1380');
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+                padding: 0 5px;
+                border-radius: 8px;
+                box-shadow: 2px 2px 10px burlywood;
+            }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+            <div id='side-icon' class="side-icon">
+                <button id="btn-fullscreen" class="side-icon__link" title="Открыть на весь экран">
+                    <i id="full" class="fas fa-expand"></i>
+                </button>
+            </div>
+        </div>
+        <div class="coords"><p>Координаты X: <span id="x"></span>, Y: <span id="y"></span>, Zoom: <span id="zoom"></span></p></div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="https://unpkg.com/leaflet@1.8.0/dist/leaflet.js" integrity="sha512-BB3hKbKWOc9Ez/TAwyWxNXeoV9c1v6FIeYiBieIWkpLjauysF18NzgR1MBNBXf8/KABdlkX68nAhlwcDFLGPCQ==" crossorigin=""></script>
+        <script src="js/L.Control.Locate.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/leaflet-measure.js"></script>
+        <script src="data/2000_2.js"></script>
+        <script src="data/2010_3.js"></script>
+        <script src="data/2020_4.js"></script>
+        <script src="data/1990_5.js"></script>
+        <script src="data/2022_6.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:true, maxZoom:15, minZoom:3
+        }).fitBounds([[52.45063163919847,75.74634844144838],[53.08690544203728,77.21242036325027]]);
+        var hash = new L.Hash(map);
+        
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        var measureControl = new L.Control.Measure({
+            position: 'toleft',
+            primaryLengthUnit: 'meters',
+            secondaryLengthUnit: 'kilometers',
+            primaryAreaUnit: 'sqmeters',
+            secondaryAreaUnit: 'hectares'
+        });
+        // measureControl.addTo(map);
+        // document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        // .innerHTML = '';
+        // document.getElementsByClassName('leaflet-control-measure-toggle')[0]
+        // .className += ' fas fa-ruler';
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_GoogleSatelliteHybrid_0');
+        map.getPane('pane_GoogleSatelliteHybrid_0').style.zIndex = 400;
+        var layer_GoogleSatelliteHybrid_0 = L.tileLayer('http://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}', {
+            pane: 'pane_GoogleSatelliteHybrid_0',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 2,
+            maxZoom: 15,
+            minNativeZoom: 0,
+            maxNativeZoom: 22
+        });
+        layer_GoogleSatelliteHybrid_0;
+        map.createPane('pane_GoogleMaps_1');
+        map.getPane('pane_GoogleMaps_1').style.zIndex = 401;
+        var layer_GoogleMaps_1 = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_GoogleMaps_1',
+            opacity: 1.0,
+            attribution: '',
+            minZoom: 2,
+            maxZoom: 15,
+            minNativeZoom: 0,
+            maxNativeZoom: 22
+        });
+        layer_GoogleMaps_1;
+        map.addLayer(layer_GoogleMaps_1);
+        let basemaps = {
+            'topomap': layer_GoogleMaps_1,
+            'hybrid': layer_GoogleSatelliteHybrid_0
+        }
+        function pop_2000_2(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DN'] !== null ? autolinker.link(feature.properties['DN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Площадь</strong><br />' + (feature.properties['Площадь'] !== null ? autolinker.link(feature.properties['Площадь'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Река</strong><br />' + (feature.properties['Река'] !== null ? autolinker.link(feature.properties['Река'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_2000_2_0() {
+            return {
+                pane: 'pane_2000_2',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(225,89,137,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_2000_2');
+        map.getPane('pane_2000_2').style.zIndex = 402;
+        map.getPane('pane_2000_2').style['mix-blend-mode'] = 'normal';
+        var layer_2000_2 = new L.geoJson(json_2000_2, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_2000_2',
+            layerName: 'layer_2000_2',
+            pane: 'pane_2000_2',
+            onEachFeature: pop_2000_2,
+            style: style_2000_2_0,
+        });
+        bounds_group.addLayer(layer_2000_2);
+        map.addLayer(layer_2000_2);
+        function pop_2010_3(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DN'] !== null ? autolinker.link(feature.properties['DN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Площадь</strong><br />' + (feature.properties['Площадь'] !== null ? autolinker.link(feature.properties['Площадь'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Река</strong><br />' + (feature.properties['Река'] !== null ? autolinker.link(feature.properties['Река'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_2010_3_0() {
+            return {
+                pane: 'pane_2010_3',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(190,207,80,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_2010_3');
+        map.getPane('pane_2010_3').style.zIndex = 403;
+        map.getPane('pane_2010_3').style['mix-blend-mode'] = 'normal';
+        var layer_2010_3 = new L.geoJson(json_2010_3, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_2010_3',
+            layerName: 'layer_2010_3',
+            pane: 'pane_2010_3',
+            onEachFeature: pop_2010_3,
+            style: style_2010_3_0,
+        });
+        bounds_group.addLayer(layer_2010_3);
+        map.addLayer(layer_2010_3);
+        function pop_2020_4(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DN'] !== null ? autolinker.link(feature.properties['DN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Площадь</strong><br />' + (feature.properties['Площадь'] !== null ? autolinker.link(feature.properties['Площадь'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Река</strong><br />' + (feature.properties['Река'] !== null ? autolinker.link(feature.properties['Река'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_2020_4_0() {
+            return {
+                pane: 'pane_2020_4',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(152,125,183,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_2020_4');
+        map.getPane('pane_2020_4').style.zIndex = 404;
+        map.getPane('pane_2020_4').style['mix-blend-mode'] = 'normal';
+        var layer_2020_4 = new L.geoJson(json_2020_4, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_2020_4',
+            layerName: 'layer_2020_4',
+            pane: 'pane_2020_4',
+            onEachFeature: pop_2020_4,
+            style: style_2020_4_0,
+        });
+        bounds_group.addLayer(layer_2020_4);
+        map.addLayer(layer_2020_4);
+        function pop_1990_5(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DN'] !== null ? autolinker.link(feature.properties['DN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Площадь</strong><br />' + (feature.properties['Площадь'] !== null ? autolinker.link(feature.properties['Площадь'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Река</strong><br />' + (feature.properties['Река'] !== null ? autolinker.link(feature.properties['Река'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_1990_5_0() {
+            return {
+                pane: 'pane_1990_5',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(231,113,72,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_1990_5');
+        map.getPane('pane_1990_5').style.zIndex = 405;
+        map.getPane('pane_1990_5').style['mix-blend-mode'] = 'normal';
+        var layer_1990_5 = new L.geoJson(json_1990_5, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_1990_5',
+            layerName: 'layer_1990_5',
+            pane: 'pane_1990_5',
+            onEachFeature: pop_1990_5,
+            style: style_1990_5_0,
+        });
+        bounds_group.addLayer(layer_1990_5);
+        map.addLayer(layer_1990_5);
+        function pop_2022_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['fid'] !== null ? autolinker.link(feature.properties['fid'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['DN'] !== null ? autolinker.link(feature.properties['DN'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Площадь</strong><br />' + (feature.properties['Площадь'] !== null ? autolinker.link(feature.properties['Площадь'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2"><strong>Река</strong><br />' + (feature.properties['Река'] !== null ? autolinker.link(feature.properties['Река'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            layer.bindPopup(popupContent, {maxHeight: 400});
+        }
+
+        function style_2022_6_0() {
+            return {
+                pane: 'pane_2022_6',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(183,72,75,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_2022_6');
+        map.getPane('pane_2022_6').style.zIndex = 406;
+        map.getPane('pane_2022_6').style['mix-blend-mode'] = 'normal';
+        var layer_2022_6 = new L.geoJson(json_2022_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_2022_6',
+            layerName: 'layer_2022_6',
+            pane: 'pane_2022_6',
+            onEachFeature: pop_2022_6,
+            style: style_2022_6_0,
+        });
+        bounds_group.addLayer(layer_2022_6);
+        map.addLayer(layer_2022_6);
+        L.control.layers(basemaps,{'<img src="legend/2022_6.png" /> 2022': layer_2022_6,'<img src="legend/1990_5.png" /> 1990': layer_1990_5,'<img src="legend/2020_4.png" /> 2020': layer_2020_4,'<img src="legend/2010_3.png" /> 2010': layer_2010_3,'<img src="legend/2000_2.png" /> 2000': layer_2000_2}).addTo(map);
+        setBounds();
+
+        let btnFullscreen = document.getElementById('btn-fullscreen');
+
+        // View map fullscreen
+        function fullScreenToggler() {
+            let doc = document;
+                elm = document.body;
+                changeIconFull = document.getElementById('full');
+            
+            if (!doc.fullscreenElement) {
+                elm.requestFullscreen()
+                changeIconFull.classList.remove('fa-expand')
+                changeIconFull.classList.add('fa-compress')
+            } else {
+                doc.exitFullscreen()
+                changeIconFull.classList.remove('fa-compress')
+                changeIconFull.classList.add('fa-expand')
+            }
+
+            // !doc.fullscreenElement ? elm.requestFullscreen() : doc.exitFullscreen();
+
+        }
+
+        btnFullscreen.addEventListener('click', fullScreenToggler)
+
+        // Coordinates 
+        var x = document.getElementById('x');
+        var y = document.getElementById('y');
+        var z = document.getElementById('zoom');
+
+        function onMapClick(e) {
+            y.innerHTML = e.latlng.lng.toFixed(5);
+            x.innerHTML = e.latlng.lat.toFixed(5);
+            zoom.innerHTML = map._zoom;
+        }
+        map.on('mousemove', onMapClick);
+        </script>
+    </body>
+</html>
