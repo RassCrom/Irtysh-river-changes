@@ -1,2 +1,2 @@
 # Irtysh-river-changes
-https://rasscrom.github.io/ernur_kenzhegali/#12/52.8576/76.4146
+https://rasscrom.github.io/Irtysh-river-changes/#9/52.7699/76.4794
